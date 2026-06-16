@@ -1,0 +1,31 @@
+{
+  "name": "Blinko",
+  "id": "blinko",
+  "available": true,
+  "short_desc": "Capture and organize your ideas instantly.",
+  "author": "Blinko Space",
+  "port": 1111,
+  "categories": ["utilities"],
+  "description": "Blinko is an open-source, self-hosted note-taking space designed to help you quickly capture and organize your ideas.",
+  "tipi_version": 1,
+  "version": "latest",
+  "source": "https://github.com/blinko-space/blinko",
+  "exposable": true,
+  "dynamic_config": true,
+  "form_fields": [
+    {
+      "type": "random",
+      "label": "NextAuth Secret",
+      "required": true,
+      "env_variable": "NEXTAUTH_SECRET",
+      "min": 32
+    },
+    {
+      "type": "random",
+      "label": "Database Password",
+      "required": true,
+      "env_variable": "DB_PASSWORD",
+      "min": 32
+    }
+  ]
+}
