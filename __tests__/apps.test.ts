@@ -55,14 +55,20 @@ describe("each app should have a valid config.json", async () => {
   for (const app of apps) {
     test(`app ${app} should have a valid config.json`, async () => {
       const fileContent = await getFile(app, 'config.json')
-      const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent || '{}'))
+const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent || '{}'));
 
-      if (parsed instanceof type.errors) {
-        const validationError = fromError(parsed);
-        console.error(`Error parsing config.json for app ${app}:`, validationError.toString());
-      }
+// Se o resultado for uma instância de erro do Arktype, loga os detalhes reais no terminal
+if (parsed instanceof type.errors) {
+  console.error(`Error parsing config.json for app ${app}:`, parsed);
+  if (typeof (parsed as any).toString === 'function') {
+    console.error((parsed as any).toString());
+  } else {
+    console.error(JSON.stringify(parsed, null, 2));
+  }
+}
 
-      expect(parsed instanceof type.errors).toBe(false)
+// O teste passa se não for uma instância de erro
+expect(parsed instanceof type.errors).toBe(false);
     })
   }
 })
