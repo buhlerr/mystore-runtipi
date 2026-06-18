@@ -1,0 +1,15 @@
+services:
+  couchdb:
+    image: couchdb:3.4.2
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      - ${APP_DATA_DIR}/data:/opt/couchdb/data
+    restart: always
+    x-runtipi:
+      is_main: true
+      internal_port: 5984
+
+x-runtipi:
+  schema_version: 2

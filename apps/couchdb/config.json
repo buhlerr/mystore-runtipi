@@ -1,0 +1,29 @@
+{
+  "name": "CouchDB",
+  "id": "couchdb",
+  "available": true,
+  "short_desc": "Banco de dados NoSQL orientado a documentos que adota totalmente a Web.",
+  "author": "Apache Software Foundation",
+  "port": 5984,
+  "categories": ["databases", "utilities"],
+  "description": "O Apache CouchDB é um banco de dados de documentos NoSQL de código aberto que usa JSON para armazenar dados, JavaScript como sua linguagem de consulta usando MapReduce e HTTP para uma API.",
+  "tipi_version": 1,
+  "version": "3.4.2",
+  "source": "https://github.com/apache/couchdb-docker",
+  "exposable": true,
+  "dynamic_config": true,
+  "form_fields": [
+    {
+      "type": "text",
+      "label": "Usuário Administrador",
+      "required": true,
+      "env_variable": "COUCHDB_USER"
+    },
+    {
+      "type": "password",
+      "label": "Senha do Administrador",
+      "required": true,
+      "env_variable": "COUCHDB_PASSWORD"
+    }
+  ]
+}
