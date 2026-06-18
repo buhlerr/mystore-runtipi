@@ -26,20 +26,28 @@ const getFile = async (app: string, file: string) => {
   }
 }
 
-describe("each app should have the required files", async () => {
-  const apps = await getApps()
+// 1. Defina as variantes aceitas no topo ou antes do laço
+const composeCandidates = ['docker-compose.json', 'docker-compose.yml', 'docker-compose.yaml'];
 
-  for (const app of apps) {
-    const files = ['config.json', 'docker-compose.json', 'metadata/logo.jpg', 'metadata/description.md']
+// 2. No laço que testa a existência dos arquivos, altere a lógica do docker-compose:
+for (const file of ['config.json', 'docker-compose.json', 'metadata/logo.jpg', 'metadata/description.md']) {
+  test(`app ${app} should have ${file}`, async () => {
+    
+    // Se o teste for do docker-compose, valida se pelo menos uma das extensões existe
+    const fileContent =
+      file === 'docker-compose.json'
+        ? await (async () => {
+            for (const name of composeCandidates) {
+              const content = await getFile(app, name);
+              if (content !== null) return content;
+            }
+            return null;
+          })()
+        : await getFile(app, file);
 
-    for (const file of files) {
-      test(`app ${app} should have ${file}`, async () => {
-        const fileContent = await getFile(app, file)
-        expect(fileContent).not.toBeNull()
-      })
-    }
-  }
-})
+    expect(fileContent).not.toBeNull();
+  });
+}
 
 describe("each app should have a valid config.json", async () => {
   const apps = await getApps()
