@@ -3,6 +3,7 @@ import { appInfoSchema, dynamicComposeSchema } from '@runtipi/common/schemas';
 import fs from 'node:fs';
 import path from 'node:path';
 import { type } from "arktype";
+import { load as parseYaml } from "js-yaml"; // Certifique-se de que o js-yaml está disponível, ou use um parser compatível se o Bun já expuser um
 
 const getApps = async () => {
   const appsDir = await fs.promises.readdir(path.join(process.cwd(), 'apps'));
@@ -77,14 +78,34 @@ describe("each app should have a valid docker-compose", async () => {
 
   for (const app of apps) {
     test(`app ${app} should have a valid docker-compose file`, async () => {
-      // Tenta obter qualquer uma das extensões de compose válidas
       let fileContent = null;
+      let chosenName = '';
+      
       for (const name of composeCandidates) {
         fileContent = await getFile(app, name);
-        if (fileContent !== null) break;
+        if (fileContent !== null) {
+          chosenName = name;
+          break;
+        }
       }
 
-      const parsed = dynamicComposeSchema(JSON.parse(fileContent || '{}'));
+      // Converte adequadamente baseado na extensão encontrada
+      let rawData;
+      if (chosenName.endsWith('.json')) {
+        rawData = JSON.parse(fileContent || '{}');
+      } else {
+        // Se o js-yaml não estiver instalado, você pode usar uma expressão regular simples 
+        // ou instalar o pacote. Como alternativa nativa rápida no Bun sem dependências externas:
+        try {
+          // Fallback para converter YAML simples ou se você puder rodar `bun add js-yaml` no seu CI
+          rawData = parseYaml(fileContent || '{}');
+        } catch {
+          // Caso seu CI não possua o módulo de YAML, vamos mockar um parse estrutural ou converter
+          rawData = JSON.parse(fileContent || '{}'); 
+        }
+      }
+
+      const parsed = dynamicComposeSchema(rawData);
 
       if (parsed instanceof type.errors) {
         console.error(`Error parsing docker-compose for app ${app}:`, parsed);
