@@ -10,6 +10,7 @@
   "tipi_version": 1,
   "version": "3.4.2",
   "source": "https://github.com/apache/couchdb-docker",
+  "website": "https://couchdb.apache.org",
   "exposable": true,
   "dynamic_config": true,
   "form_fields": [
