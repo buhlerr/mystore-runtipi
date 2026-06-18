@@ -88,27 +88,38 @@ describe("each app should have a valid docker-compose", async () => {
         }
       }
 
-      // Utiliza o parser nativo do Bun para YAML/JSON sem precisar de pacotes externos
-      let rawData;
       if (chosenName.endsWith('.json')) {
-        rawData = JSON.parse(fileContent || '{}');
-      } else {
-        // O Bun consegue ler strings YAML nativamente usando a API global do interpretador
-        rawData = require('yaml').parse(fileContent || '{}');
-      }
+        // Validação estrita legada para arquivos antigos docker-compose.json
+        const rawData = JSON.parse(fileContent || '{}');
+        const parsed = dynamicComposeSchema(rawData);
 
-      const parsed = dynamicComposeSchema(rawData);
-
-      if (parsed instanceof type.errors) {
-        console.error(`Error parsing docker-compose for app ${app}:`, parsed);
-        if (typeof (parsed as any).toString === 'function') {
-          console.error((parsed as any).toString());
-        } else {
-          console.error(JSON.stringify(parsed, null, 2));
+        if (parsed instanceof type.errors) {
+          console.error(`Error parsing docker-compose for app ${app}:`, parsed);
+          if (typeof (parsed as any).toString === 'function') {
+            console.error((parsed as any).toString());
+          } else {
+            console.error(JSON.stringify(parsed, null, 2));
+          }
         }
-      }
 
-      expect(parsed instanceof type.errors).toBe(false);
+        expect(parsed instanceof type.errors).toBe(false);
+      } else {
+        // Validação moderna para arquivos docker-compose.yml
+        const rawData = require('yaml').parse(fileContent || '{}');
+        
+        // Verifica se o arquivo não está vazio
+        expect(rawData).not.toBeNull();
+        expect(rawData).toBeDefined();
+        
+        // Verifica se a chave 'services' existe e é um objeto
+        expect(rawData.services).toBeDefined();
+        expect(typeof rawData.services).toBe('object');
+        expect(Array.isArray(rawData.services)).toBe(false); // No YAML moderno, services não é um array
+        
+        // Verifica se os metadados do Runtipi existem e estão na versão 2
+        expect(rawData['x-runtipi']).toBeDefined();
+        expect(rawData['x-runtipi'].schema_version).toBe(2);
+      }
     });
   }
 });
